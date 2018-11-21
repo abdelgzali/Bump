@@ -10,6 +10,7 @@
       <div v-for="(note, index) in notes.slice().reverse()" :key="note.id" class="note-container">
         <div>
           {{ note.title }}
+          {{ colNum }}
         </div>
         <div class="remove-note" v-on:click.once="removeNote(index)">x</div>
       </div>
@@ -23,7 +24,6 @@ export default {
   name: 'Notes',
   data () {
     return {
-      colCount : '',
       newNotes : '',
       notesID: 8,
       notes: [
@@ -67,19 +67,34 @@ export default {
           'title': 'My eigth note here',
           'order': 1,
         }
-      ]
+      ],
+      colCount : 0,
+      isMounted: false
     }
   },
+  mounted() {
+    this.isMounted = true;    // test for mount
+  },
 
-  // cached getter
   computed: {
-    colNum() {
-      this.colCount = document.getElementById("masonry").style.columnCount;
+    colNum: {
+      get() {
+        if(!this.isMounted == true) {   // compute after mount
+          return null;
+        } else {
+          let elem = document.getElementById("masonry");    // grabs & stores element
+          let cols = getComputedStyle(elem);    // stores all css properties of the element
+          this.colCount = cols.columnCount;   // updates value of column count
+          console.log(this.colCount);
+          return this.colCount;
+        }
+      }
     },
 
 
   },
   methods: {
+    // adds new note via input
     addNote() {
       if (this.newNotes.trim() == 0) {    // trims whitespace and checks remaining value
         return    // early return if empty
@@ -92,19 +107,35 @@ export default {
       this.notesID++;
     },
 
+    // removes note at index
     removeNote(index) {
       this.notes.splice(index, 1)
     },
 
-    // function for reorder logic
-    reorder(oldIndex, newIndex) {
-      // place note in new position and delete old position using splice
-      this.notes.splice(newIndex, 0, this.notes.splice(oldIndex, 1)[0]);
-      this.notes.foreEach(function(note, index) {   // changes value of order in array
-        item.order = index;
-      });
-    }
-  }
+    // reorders notes based on column count
+    reorder() {
+      if(!this.isMounted == true) {
+        return null;
+      } else {
+        let columnCount = colNum;
+        console.log(columnCount);
+        let noteCount = notes.length;
+        console.log(noteCount);
+        let iterator = noteCount / columnCount;
+        let newIndex = 0;
+        notes.forEach (function(note) {
+          this.notes.splice(newIndex, 0, note.id);
+          this.notes.splice(note.id, 1);
+          console.log(note.id);
+          newIndex += iterator;
+        });
+      }
+    },
+  },
+
+  created() {
+    this.reorder()
+  },
 }
 </script>
 
