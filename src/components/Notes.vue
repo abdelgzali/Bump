@@ -7,10 +7,9 @@
       <button type="button" class="addButton" @click="addNote">+</button>
     </div>
     <div class="masonry" id="masonry">
-      <div v-for="(note, index) in notes.slice().reverse()" :key="note.id" class="note-container">
+      <div v-for="(note, index) in notes" :key="note.id" v-model="notes" class="note-container">
         <div>
           {{ note.title }}
-          {{ colNum }}
         </div>
         <div class="remove-note" v-on:click.once="removeNote(index)">x</div>
       </div>
@@ -26,73 +25,64 @@ export default {
     return {
       newNotes : '',
       notesID: 8,
-      notes: [
+      // Existing data to be re-ordered
+      preNotes: [
         {
           'id': 0,
           'title': 'My first note here',
-          'order': 8,
         },
         {
           'id': 1,
           'title': 'My second note here',
-          'order': 7,
         },
         {
           'id': 2,
           'title': 'My third note here',
-          'order': 6,
         },
         {
           'id': 3,
           'title': 'My fourth note here',
-          'order': 5,
         },
         {
           'id': 4,
           'title': 'My fifth note here',
-          'order': 4,
         },
         {
           'id': 5,
           'title': 'My sixth note here',
-          'order': 3,
         },
         {
           'id': 6,
           'title': 'My seventh note here',
-          'order': 2,
         },
         {
           'id': 7,
           'title': 'My eigth note here',
-          'order': 1,
         }
       ],
+      notes: [],    // array for final order
       colCount : 0,
+      oldCol: 0,
       isMounted: false
     }
   },
   mounted() {
-    this.isMounted = true;    // test for mount
+    // test for mount
+    this.isMounted = true;
+    if (!this.isMounted == true) {
+      return null;
+    } else {
+      this.preNotes.reverse();   // reverses array before reorder
+      this.getColumn();
+      this.$nextTick(function() {
+        console.log("Tick!");
+        this.reorder(this.preNotes);    // reorder when mounted
+        window.addEventListener('resize', this.getColumn);
+        window.addEventListener('resize', this.getOrder);
+      })
+    }
   },
 
-  computed: {
-    colNum: {
-      get() {
-        if(!this.isMounted == true) {   // compute after mount
-          return null;
-        } else {
-          let elem = document.getElementById("masonry");    // grabs & stores element
-          let cols = getComputedStyle(elem);    // stores all css properties of the element
-          this.colCount = cols.columnCount;   // updates value of column count
-          console.log(this.colCount);
-          return this.colCount;
-        }
-      }
-    },
-
-
-  },
   methods: {
     // adds new note via input
     addNote() {
@@ -112,29 +102,46 @@ export default {
       this.notes.splice(index, 1)
     },
 
-    // reorders notes based on column count
-    reorder() {
-      if(!this.isMounted == true) {
-        return null;
-      } else {
-        let columnCount = colNum;
-        console.log(columnCount);
-        let noteCount = notes.length;
-        console.log(noteCount);
-        let iterator = noteCount / columnCount;
-        let newIndex = 0;
-        notes.forEach (function(note) {
-          this.notes.splice(newIndex, 0, note.id);
-          this.notes.splice(note.id, 1);
-          console.log(note.id);
-          newIndex += iterator;
-        });
+    // reorders preNotes based on column count
+    reorder(preNotes) {
+      let columnCount = Number(this.colCount);
+      let noteCount = preNotes.length;
+      let newIndex = 0;   // index for new order
+      let colPointer = 1;   // pointer to keep track of columns
+      console.log(this.notes);
+      let notes = this.notes;
+
+      for (let i = 0, len = preNotes.length; i < len; i++) {
+
+        // when the column is filled reset index based on column pointer
+        if (newIndex >= preNotes.length) {
+          newIndex = colPointer;
+          colPointer++;
+
+        }
+        notes.push(preNotes[newIndex]);   // migrates each array object to new array based on new order
+        newIndex+= columnCount;   // update index based on columnCount
       }
     },
-  },
 
-  created() {
-    this.reorder()
+    // reactive updating for column count
+    getColumn (event) {
+      let elem = document.getElementById("masonry");    // grabs & stores element
+      let cols = getComputedStyle(elem);    // stores all css properties of the element
+      this.colCount = cols.columnCount;   // updates value of column count
+      console.log("Changed cols!");
+      return this.colCount;
+    },
+
+    getOrder() {
+      let col = this.oldCol;
+      console.log(col);
+      if (col !== this.colCount) {
+        this.notes = [];
+        this.reorder(this.preNotes);
+        this.oldCol = this.colCount;
+      }
+    }
   },
 }
 </script>
