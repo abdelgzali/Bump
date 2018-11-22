@@ -1,11 +1,11 @@
-console.log('hello')
+console.log('server running...')
 
 // dependencies
-// requires main file from each package and exports into variables
+// requires main.js file from each package and exports into variables
 const express = require('express')
 const bodyParser = require('body-parser') // process JSON data
 const cors = require('cors')
-const morgan = require('morgan')
+const morgan = require('morgan')    // prints out logs
 const { sequelize } = require('./models')
 const config = require('./config/config')
 

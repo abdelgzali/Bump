@@ -89,17 +89,19 @@ export default {
       if (this.newNotes.trim() == 0) {    // trims whitespace and checks remaining value
         return    // early return if empty
       }
-      this.notes.push({
+      this.preNotes.unshift({
         id: this.notesID,
         title: this.newNotes,
       })
       this.newNotes = '';
       this.notesID++;
+      this.reorder(this.preNotes);    // reorder when mounted
     },
 
     // removes note at index
     removeNote(index) {
-      this.notes.splice(index, 1)
+      this.preNotes.splice(index, 1);
+      this.reorder(this.preNotes);    // reorder when mounted
     },
 
     // reorders preNotes based on column count
@@ -108,7 +110,7 @@ export default {
       let noteCount = preNotes.length;
       let newIndex = 0;   // index for new order
       let colPointer = 1;   // pointer to keep track of columns
-      console.log(this.notes);
+      this.notes = [];    // empty array for reorder
       let notes = this.notes;
 
       for (let i = 0, len = preNotes.length; i < len; i++) {
@@ -117,7 +119,6 @@ export default {
         if (newIndex >= preNotes.length) {
           newIndex = colPointer;
           colPointer++;
-
         }
         notes.push(preNotes[newIndex]);   // migrates each array object to new array based on new order
         newIndex+= columnCount;   // update index based on columnCount
@@ -135,30 +136,31 @@ export default {
 
     getOrder() {
       let col = this.oldCol;
-      console.log(col);
-      if (col !== this.colCount) {
-        this.notes = [];
+      if (col !== this.colCount) {    // update on column change only
         this.reorder(this.preNotes);
-        this.oldCol = this.colCount;
+        this.oldCol = this.colCount;    // update column count
       }
     }
   },
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
+<style lang="scss">
+
+  $button-color: #f1c40f;
+
   .parent-container {
     margin: 0px 30px;
   }
+
   *,
   *:before,
   *:after {
-    box-sizing: inherit;
+    box-sizing: border-box;
   }
 
   .masonry {
-    column-count: 5;
+    column-count: 4;
     column-gap: 6.66667px;
   }
   /* Masonry on large screens */
@@ -185,15 +187,19 @@ export default {
   .inputNav {
     margin-bottom: 1.75em;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .notes-input {
-    padding: 20px 0px;
-    margin: 50px 30px;
+    width: 90vw;
+    padding: 20px 0;
+    margin: 70px 30px 50px 0px;
     text-align: center;
-    color: #bdc3c7;
-
+    color: #fff;
+    background: #34495e;
+    border-radius: 30px;
+    font-size: 14px;
+    outline: none;
   }
 
   .note-container {
@@ -202,7 +208,8 @@ export default {
     padding: 1em;
     margin: 0 0 0.5em;
     break-inside: avoid;
-    background: #fff;
+    background: #34495e;
+    color: #fff;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     transition: all 0.3s cubic-bezier(.25,.8,.25,1);
   }
@@ -217,20 +224,26 @@ export default {
   }
 
   .addButton {
+    height: 61px;
+    width: 2.4em;
+    overflow: hidden;
     margin: auto;
-    margin-bottom: 5px;
-    padding: 20px;
-    border-radius: 50%;
-    border: 0px;
-    background: #2ecc71;
+    margin-top: 70px;
+    padding: 0;
+    border-radius: 60px;
+    border: 1px solid;
     font-size: 35px;
-    color: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    color: $button-color;
+    background: transparent;
+    transition: background-color 0.3s ease-in;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+      color: #fff;
+      background: $button-color;
+      border: 0px;
+    }
   }
-  .addButton:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.25), 0 3px 3px rgba(0,0,0,0.22);
-    margin-bottom: 0px;
-    padding: 25px;
-  }
+
 </style>
