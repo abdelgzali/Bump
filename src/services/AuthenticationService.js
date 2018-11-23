@@ -6,6 +6,7 @@ export default {
   }
 }
 
+// when calling
 // AuthenticationService.register({
 //   email: 'abdelgzali@gmail.com',
 //   password: '123456'

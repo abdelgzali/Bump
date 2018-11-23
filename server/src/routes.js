@@ -2,6 +2,11 @@
 
 const AuthenticationController = require('./controllers/AuthenticationController')
 
+const AuthenticationControllerPolicy = require('./policies/AuthenticationControllerPolicy')
+
+// express middlewear
 module.exports = (app) => {
-  app.post('/register', AuthenticationController.register)
+  app.post('/register',
+    AuthenticationControllerPolicy.register,
+    AuthenticationController.register)
 }

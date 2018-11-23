@@ -16,6 +16,7 @@ const sequelize = new Sequelize(
 
 // reads all files in models folder and setup for sequelize
 // helps import future models
+// not index.js
 fs
   .readdirSync(__dirname)
   .filter((file) =>
