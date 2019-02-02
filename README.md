@@ -1,8 +1,12 @@
-# bump
+## bump
+*An efficient masonry-grid style notes web-app built with Vue.js*
 
-> Bump Notes
+**Client:** Javascript/HTML/CSS (Vue components)
 
-## Build Setup
+**API:** Node.js running on an Express.js server + SQLite w/ sequelize ORM
+
+
+### Build Setup
 
 ``` bash
 # install dependencies
